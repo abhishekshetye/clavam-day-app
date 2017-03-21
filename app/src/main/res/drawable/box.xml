@@ -3,6 +3,18 @@
 
     <!-- most important is order of layers -->
 
+    <item >
+        <shape android:shape="rectangle">
+            <solid android:color="#515050" />
+        </shape>
+    </item>
+
+    <item >
+        <shape android:shape="rectangle">
+            <solid android:color="#515050" />
+        </shape>
+    </item>
+
     <!-- Bottom right side 2dp Shadow -->
     <item >
         <shape android:shape="rectangle">

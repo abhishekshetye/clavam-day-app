@@ -22,6 +22,7 @@ import android.webkit.URLUtil;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -41,13 +42,12 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
-
+    private FirebaseAnalytics mFirebaseAnalytics;
     String TAG = "FIRbase";
     List<Video> videos;
     private Button btn, first, newvideo;
     private SharedPreferences prefs;
     int size;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,17 +58,33 @@ public class MainActivity extends AppCompatActivity {
         newvideo = (Button) findViewById(R.id.newvideo);
         first = (Button) findViewById(R.id.button2);
 
-
-
         //shared prefs
         prefs = getSharedPreferences("MYPREFS", MODE_PRIVATE);
         size = prefs.getInt("SIZE", 0);
+
+
 
         //ui changes
         newvideo.setVisibility(View.INVISIBLE);
         first.setText(prefs.getString("FN", "first"));
         btn.setText(prefs.getString("SN", "second"));
 
+
+        //analytics
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        Bundle bundle = new Bundle();
+        bundle.putString("user", "user");
+        bundle.putString("opened", "yes");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.APP_OPEN, bundle);
+
+        SharedPreferences.Editor editor = prefs.edit();
+        int c = prefs.getInt("OPENED", 1) + 1;
+        editor.putInt("OPENED", c);
+        editor.commit();
+
+
+        //open counter
+        updateTimes();
 
         if(size <= 1){
             btn.setVisibility(View.INVISIBLE);
@@ -79,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
         DatabaseReference myRef = database.getReference("videos");
 
         videos = new ArrayList<>();
-        Query myTopPostsQuery = myRef.orderByValue();
+        final Query myTopPostsQuery = myRef.orderByValue();
         myTopPostsQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -92,9 +108,10 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if(videos.size() > size){
-                    newvideo.setVisibility(View.VISIBLE);
+                    //newvideo.setVisibility(View.VISIBLE);
                 }
 
+                // myTopPostsQuery.removeEventListener(this);
 
                 if(videos.size() >= 2)
                 Log.d("FIR", "secondLast ->  " + videos.get(videos.size()-2).getName());
@@ -129,6 +146,25 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void updateTimes(){
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+        String key = prefs.getString("KEY", "key");
+        DatabaseReference newRef = database.child("users").child(key);
+        DatabaseReference statusRef = newRef.child("opened");
+        statusRef.setValue(prefs.getInt("OPENED", 0));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+//        if(!isFinishing()){
+//            Toast.makeText(this, "Not finishing", Toast.LENGTH_SHORT).show();
+//            int c = prefs.getInt("OPENED",0);
+//            c--;
+//            prefs.edit().putInt("OPENED",c).commit();
+//        }
+    }
+
     public void newVideo(View v){
         String n;
         File file;
@@ -151,6 +187,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+
 
     public void newClick(View v) {
         String n;
@@ -211,23 +249,27 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void download(String url){
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-        String n = URLUtil.guessFileName(url, null, null);
-        request.setDescription(n);
-        request.setTitle("Downloading video");
-        // in order for this if to run, you must use the android 3.2 to compile your app
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            request.allowScanningByMediaScanner();
-            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        try {
+            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+            String n = URLUtil.guessFileName(url, null, null);
+            request.setDescription(n);
+            request.setTitle("Downloading video");
+            // in order for this if to run, you must use the android 3.2 to compile your app
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                request.allowScanningByMediaScanner();
+                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+            }
+
+
+            String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Clavam/" + n;
+            request.setDestinationInExternalPublicDir("/Clavam", n);
+
+            // get download service and enqueue file
+            DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+            manager.enqueue(request);
+        }catch(Exception e){
+            Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show();
         }
-
-
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Clavam/" + n;
-        request.setDestinationInExternalPublicDir("/Clavam", n);
-
-        // get download service and enqueue file
-        DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-        manager.enqueue(request);
 
     }
 

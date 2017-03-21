@@ -1,27 +1,27 @@
 {
   "project_info": {
-    "project_number": "918526831207",
-    "firebase_url": "https://clavam-day.firebaseio.com",
-    "project_id": "clavam-day",
-    "storage_bucket": "clavam-day.appspot.com"
+    "project_number": "1029173296442",
+    "firebase_url": "https://clavam-day-app.firebaseio.com",
+    "project_id": "clavam-day-app",
+    "storage_bucket": "clavam-day-app.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:918526831207:android:d04f3817f7261a97",
+        "mobilesdk_app_id": "1:1029173296442:android:d04f3817f7261a97",
         "android_client_info": {
           "package_name": "com.codebreaker.chavam"
         }
       },
       "oauth_client": [
         {
-          "client_id": "918526831207-08m9nnnplp2dclm39hrvn9bjal21sec0.apps.googleusercontent.com",
+          "client_id": "1029173296442-e3d9hpf3hobmnf64lv8nj2a41tigf3eh.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCAv4aT94Wa2rNKh_mj9ircNcJCTkUI27c"
+          "current_key": "AIzaSyCQszyBm8umOFDgtxbAKhyOO6kLW-9zwgI"
         }
       ],
       "services": {

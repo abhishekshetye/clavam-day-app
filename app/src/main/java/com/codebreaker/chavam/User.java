@@ -9,6 +9,7 @@ public class User {
     public String me;
     public String mobile;
     public String headquarter;
+    public String device = "android";
 
     public User(String name, String mobile, String headquarter){
         this.me = name;

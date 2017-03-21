@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -107,6 +108,12 @@ public class Login extends AppCompatActivity {
         return true;
     }
 
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        return cm.getActiveNetworkInfo() != null;
+    }
+
     public void login(View view){
 
         if(!hasPermissions(this, PERMISSIONS)){
@@ -136,10 +143,11 @@ public class Login extends AppCompatActivity {
         DatabaseReference newRef = database.child("users").push();
         newRef.setValue(new User(me.getText().toString(), mob.getText().toString(), hq.getText().toString()));
         Toast.makeText(this, "Successfully registered", Toast.LENGTH_SHORT).show();
-
+        String key = newRef.getKey();
 
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean("FIRST", true);
+        editor.putString("KEY", key);
         editor.commit();
 
         Intent i = new Intent(this, MainActivity.class);
